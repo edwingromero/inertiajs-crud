@@ -43,11 +43,13 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message')
             ],
 
-            'errors' => function () {
-                return Session::get('errors')
-                    ? Session::get('errors')->getBag('default')->getMessages()
-                    : (object) [];
-            },
+            'appName' => config('app.name'),
+
+            // 'errors' => function () {
+            //     return Session::get('errors')
+            //         ? Session::get('errors')->getBag('default')->getMessages()
+            //         : (object) [];
+            // },
         ]);
     }
 }

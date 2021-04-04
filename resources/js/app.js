@@ -5,6 +5,9 @@ import { App, plugin } from '@inertiajs/inertia-vue'
 import Vue from 'vue'
 import { InertiaProgress } from '@inertiajs/progress'
 
+import PortalVue from 'portal-vue'
+Vue.use(PortalVue)
+
 
 import { BootstrapVue } from 'bootstrap-vue'
 

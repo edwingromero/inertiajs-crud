@@ -1,12 +1,11 @@
 <template>
   <div>
-
-    
-
+      <portal to="title">Usuarios</portal>
+      
       <alert-dismiss v-if="$page.props.flash.message" :message="$page.props.flash.message" count="5"></alert-dismiss>
 
 
-      <button class="btn btn-md btn-info mb-2" @click="create">Nuevo</button>
+      <button class="btn btn-md btn-info mb-2" @click="create">Nuevo Usuario</button>
       <table class="table table-bordered table-sm">
         <thead>
           <th>Nombre</th>
@@ -43,7 +42,7 @@
               <div  class="text-danger"  v-if="errors.email">{{ errors.email }}</div>
             </div>
           </div>
-          <div class="row">
+          <div v-if="!editMode" class="row">
             <div class="col-md-12 form-group">
               <label class="label-control">Password</label>
               <input type="password" v-model="form.password" class="form-control" :class="{'is-invalid':errors.password}">
@@ -52,8 +51,8 @@
           </div>
           <div class="row">
             <div class="col-md-12 form-group">
-              <button v-if="!editMode" type="button" class="btn btn-success" @click="save">Guardar</button>
-              <button v-if="editMode" type="button" class="btn btn-success" @click="update(form)">Actualizar</button>
+              <button :disabled="sendServer" v-if="!editMode" type="button" class="btn btn-success" @click="save">Guardar</button>
+              <button :disabled="sendServer" v-if="editMode" type="button" class="btn btn-success" @click="update(form)">Actualizar</button>
             </div>
           </div>
         </form>
@@ -83,7 +82,8 @@ export default {
         password:null
       },
       dismissCountDown: null,
-      showDismissibleAlert: false
+      showDismissibleAlert: false,
+      sendServer:false,
       
     }
   },
@@ -100,27 +100,41 @@ export default {
         password:null
       }
     },
-    save: function (event) {
-      event.preventDefault();
-      this.$inertia.post('/users', this.form)
+    save(){
+      let vue = this;
+      this.$inertia.post('/users', this.form,{
+        onStart: (visit) => {
+          vue.sendServer = true;
+        },
+        onSuccess: visit => {
+          vue.$refs['modal-form'].hide();
+        },
+        onFinish: visit => {
+          vue.sendServer = false;
+        },
+      });
     },
     edit(data){
+      this.reset();
       this.form = Object.assign({}, data);
       this.editMode = true;
       this.$refs['modal-form'].show();
     },
     update(data) {
-      data._method = 'PUT';
-      this.$inertia.visit('/users/' + data.id, {
-        method: 'POST',
-        data: data,
-        onProgress: progress => {
-          console.log('holaaaa')
+      let vue = this;
+      data._method = 'PUT';      
+      this.$inertia.post('/users/'+data.id, data,{
+        onStart: (visit) => {
+          vue.sendServer = true;
         },
-        onSuccess: page => {
-          //console.log(page)
+        onSuccess: visit => {
+          vue.$refs['modal-form'].hide();
         },
-      })
+        onFinish: visit => {
+          vue.sendServer = false;
+        },
+      });
+      
       
     },
     deleteRow(data){

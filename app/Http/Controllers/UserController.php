@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,8 +19,9 @@ class UserController extends Controller
     public function index()
     {
         return Inertia::render('Users',[
-            'users' => User::paginate(5)
+            'users' => DB::table('users')->paginate(5)
         ]);
+        
     }
 
     /**
@@ -64,8 +66,7 @@ class UserController extends Controller
     {
         Validator::make($request->all(), [
             'name' => ['required'],
-            'email' => ['required'],
-            'password' => ['required'],
+            'email' => ['required']
         ])->validate();
   
         if ($request->has('id')) {
